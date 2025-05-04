@@ -1,0 +1,115 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "./generated"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("POSTGRES_URI")
+}
+
+model User {
+  id       Int     @id @default(autoincrement())
+  email    String  @unique
+  login    String  @unique
+  name     String?
+  password String
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  Accounts   Account[]
+  Budgets    Budget[]
+  Operations Operation[]
+}
+
+enum AccountType {
+  MAIN
+  USER
+}
+
+model Account {
+  id     Int  @id @default(autoincrement())
+  userId Int  @unique @map("user_id")
+  user   User @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  name     String
+  type     AccountType
+  archived Boolean     @default(false)
+
+  Expenses Operation[] @relation("Expenses")
+  Incomes  Operation[] @relation("Incomes")
+}
+
+model Budget {
+  id     Int  @id @default(autoincrement())
+  userId Int  @unique @map("user_id")
+  user   User @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  color       String
+  note        String?
+  name        String
+  archived    Boolean       @default(false)
+  BudgetValue BudgetValue[]
+}
+
+model BudgetValue {
+  id       Int    @id @default(autoincrement())
+  budgetId Int    @unique @map("budget_id")
+  budget   Budget @relation(fields: [budgetId], references: [id])
+
+  startDate DateTime @default(now()) @map("startDate")
+  endDate   DateTime @map("end_date")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  value Int
+}
+
+enum OperationType {
+  SINGLE
+  REGULAR
+}
+
+model Operation {
+  id     Int  @id @default(autoincrement())
+  userId Int  @unique @map("user_id")
+  user   User @relation(fields: [userId], references: [id])
+
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+  operationDate DateTime @map("operation_date")
+
+  sourceId Int     @unique @map("source_id")
+  targetId Int     @unique @map("target_id")
+  source   Account @relation("Expenses", fields: [sourceId], references: [id])
+  target   Account @relation("Incomes", fields: [targetId], references: [id])
+
+  color    String
+  note     String
+  name     String
+  type     OperationType
+  value    Int           @default(0)
+  archived Boolean       @default(false)
+
+  OpearationValueChange OpearationValueChange[]
+}
+
+model OpearationValueChange {
+  id          Int       @id @default(autoincrement())
+  operationId Int       @unique @map("operation_id")
+  opearation  Operation @relation(fields: [operationId], references: [id])
+
+  startDate DateTime @default(now()) @map("startDate")
+  endDate   DateTime @map("end_date")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  value Int
+}
