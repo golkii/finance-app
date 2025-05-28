@@ -1,6 +1,6 @@
+"use server"
 import { PrismaClient } from "@/prisma/generated";
 import bcrypt from "bcryptjs";
-// import { loginSchema } from "@/auth";
 import { z } from "zod";
 import { loginSchema, registerSchema } from "./authSchema";
 import { createSession, deleteSession } from "@/lib/session";

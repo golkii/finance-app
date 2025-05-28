@@ -6,7 +6,7 @@ import { Form, FormField } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { zodResolver } from "@hookform/resolvers/zod";
-import React, { useActionState, useState } from "react";
+import React, { startTransition, useActionState, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -22,21 +22,16 @@ const Register = () => {
     },
   });
   const { formState } = form;
-  const [state, action, pending] = useActionState(signup, undefined);
-
-  const [registerError, setRegisterError] = useState("");
-
-  // const onSubmit = async (data: z.infer<typeof registerSchema>) => {
-  //   const response = await register(data);
-  //   if (typeof response == "string") {
-  //     setRegisterError(response);
-  //     return;
-  //   }
-  // };
-
+  const [registerError /* setRegisterError */] = useState("");
+  const [, action, pending] = useActionState(signup, undefined);
+  function handleFormSubmit(data: z.infer<typeof registerSchema>) {
+    startTransition(() => {
+      action(data);
+    });
+  }
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(action)}>
+      <form onSubmit={form.handleSubmit(handleFormSubmit)}>
         <FormField
           control={form.control}
           name="login"

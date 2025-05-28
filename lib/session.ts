@@ -1,7 +1,6 @@
 import "server-only";
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
-// import { SessionPayload } from "@/app/lib/definitions";
 
 const secretKey = process.env.AUTH_SECRET;
 const encodedKey = new TextEncoder().encode(secretKey);
@@ -21,6 +20,7 @@ export async function encrypt(payload: SessionPayload) {
 }
 
 export async function decrypt(session: string | undefined = "") {
+  if (!session) return;
   try {
     const { payload } = await jwtVerify(session, encodedKey, {
       algorithms: ["HS256"],
