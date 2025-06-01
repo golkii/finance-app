@@ -5,14 +5,12 @@ import { decrypt } from "./lib/session";
 const publicRoutes = ["/auth"];
 
 export async function middleware(req: NextRequest) {
-  console.log("middleware hi");
   const path = req.nextUrl.pathname;
   const isPublicRoute = publicRoutes.includes(path);
   const isProtectedRoute = !isPublicRoute;
 
   const cookie = (await cookies()).get("session")?.value;
   const session = await decrypt(cookie);
-  console.log(session)
 
   if (isProtectedRoute && !session?.id) {
     return NextResponse.redirect(new URL("/auth", req.nextUrl));

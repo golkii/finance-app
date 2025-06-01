@@ -35,5 +35,5 @@ export async function signin(_: unknown, data: z.infer<typeof loginSchema>) {
 
 export async function signout() {
   await deleteSession();
-  redirect("/login");
+  redirect("/auth");
 }
